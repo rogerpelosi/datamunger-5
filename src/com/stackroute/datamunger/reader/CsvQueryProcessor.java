@@ -1,7 +1,11 @@
 package com.stackroute.datamunger.reader;
 
 import com.stackroute.datamunger.query.DataSet;
+import com.stackroute.datamunger.query.DataTypeDefinitions;
+import com.stackroute.datamunger.query.Header;
+import com.stackroute.datamunger.query.RowDataTypeDefinitions;
 import com.stackroute.datamunger.query.parser.QueryParameter;
+import com.stackroute.datamunger.query.parser.QueryParser;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,14 +19,23 @@ import java.util.stream.Collectors;
 
 public class CsvQueryProcessor implements QueryProcessingEngine {
 
-	FileReader fReader;
-	BufferedReader bReader;
+	public CsvQueryProcessor(){}
+
+	private QueryParameter queryParameter;
+	public QueryParameter getQueryParameter() {return queryParameter;}
+	public void setQueryParameter(QueryParameter queryParameter) {this.queryParameter = queryParameter;}
+
+	public CsvQueryProcessor(QueryParameter queryParameter){this.queryParameter = queryParameter;}
 
 	/*
 	 * This method will take QueryParameter object as a parameter which contains the
 	 * parsed query and will process and populate the ResultSet
 	 */
 	public DataSet getResultSet(QueryParameter queryParameter) throws IOException {
+
+		FileReader fReader;
+		BufferedReader bReader;
+		DataSet dataSet = new DataSet();
 
 		/*
 		 * initialize BufferedReader to read from the file which is mentioned in
@@ -54,8 +67,10 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 * populate the header Map object from the header array. header map is having
 		 * data type <String,Integer> to contain the header and it's index.
 		 */
-		//Map<String, Integer> headerMap = (Map<String, Integer>) Arrays.stream(headerArray);
-		System.out.println(Arrays.stream(headerArray).collect(Collectors.toList()));
+		Header headerMap = new Header();
+		for(int i = 0; i < headerArray.length; i++){
+			headerMap.put(headerArray[i], i);
+		}
 
 		/*
 		 * We have read the first line of text already and kept it in an array. Now, we
@@ -64,6 +79,10 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 * it's data type. To find the dataType by the field value, we will use
 		 * getDataType() method of DataTypeDefinitions class
 		 */
+		RowDataTypeDefinitions rdtdMap = new RowDataTypeDefinitions();
+		for(int i = 0; i < dataForFieldsArray.length; i++){
+			rdtdMap.put(i, DataTypeDefinitions.getDataType(dataForFieldsArray[i]).getClass().getSimpleName());
+		}
 
 		/*
 		 * once we have the header and dataTypeDefinitions maps populated, we can start
@@ -75,12 +94,15 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 */
 
 		/* reset the buffered reader so that it can start reading from the first line */
+		bReader.reset();
 
 		/*
 		 * skip the first line as it is already read earlier which contained the header
 		 */
+		System.out.println(bReader.readLine());
 
 		/* read one line at a time from the CSV file till we have any lines left */
+		//while(!bReader.readLine().isEmpty())
 
 		/*
 		 * once we have read one line, we will split it into a String Array. This array
@@ -123,7 +145,7 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		/* return dataset object */
 		bReader.close();
 		fReader.close();
-		return null;
+		return dataSet;
 	}
 
 }

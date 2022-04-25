@@ -48,10 +48,9 @@ public class QueryParameter {
 //		return null;
 //	}
 //
-	public String getQUERY_TYPE() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	private String queryType;
+	public String getQUERY_TYPE() {return queryType;}
+	public void setQueryType(String queryType) {this.queryType = queryType;}
 
 	private String fileName;
 	public String getFileName() {

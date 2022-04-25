@@ -1,5 +1,8 @@
 package com.stackroute.datamunger.query;
 
+import java.time.LocalDate;
+import java.util.regex.Pattern;
+
 /*
  * Implementation of DataTypeDefinitions class. This class contains a method getDataTypes() 
  * which will contain the logic for getting the datatype for a given field value. This
@@ -16,6 +19,23 @@ public class DataTypeDefinitions {
 
 	//method stub
 	public static Object getDataType(String input) {
+
+		Object obj = new Object();
+
+		Pattern digitCheck = Pattern.compile("\\p{Digit}");
+		Pattern allDigits = Pattern.compile("(\\p{Digit})[\\p{Digit}]*");
+
+		if(input.isEmpty()) {
+			return obj;
+		} else if(digitCheck.matcher(input).region(0,1).matches()) {
+			if(allDigits.matcher(input).matches()) {
+				return 1234;
+			} else {
+				return LocalDate.now();
+			}
+		} else {
+			return "stringalingling";
+		}
 	
 		// checking for Integer
 		
@@ -35,9 +55,7 @@ public class DataTypeDefinitions {
 		
 		// checking for date format yyyy-mm-dd
 		
-		return null;
+		//return obj;
 	}
-	
-
 	
 }

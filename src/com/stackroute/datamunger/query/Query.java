@@ -1,8 +1,12 @@
 package com.stackroute.datamunger.query;
 
+import com.stackroute.datamunger.query.parser.QueryParameter;
 import com.stackroute.datamunger.query.parser.QueryParser;
+import com.stackroute.datamunger.reader.CsvQueryProcessor;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Query {
 
@@ -16,36 +20,36 @@ public class Query {
 	 * multiple conditions
 	 */
 	@SuppressWarnings("rawtypes")
-	public HashMap executeQuery(String queryString) {
+	public HashMap executeQuery(String queryString) throws IOException {
+
+		HashMap<String, String> f = new HashMap<>();
 	
 		/* instantiate QueryParser class */
-
-		QueryParser qParser;
+		QueryParser qParser = new QueryParser();
 		
 		/*
 		 * call parseQuery() method of the class by passing the queryString which will
 		 * return object of QueryParameter
 		 */
+		QueryParameter qParameter = qParser.parseQuery(queryString);
 
-		//qParser.parseQuery(queryString); ARE WE SUPPOSED TO INITIALIZE AS WELL??
-		
 		/*
 		 * Check for Type of Query based on the QueryParameter object. In this
 		 * assignment, we will process only queries containing zero, one or multiple
 		 * where conditions i.e. conditions without aggregate functions, order by clause
 		 * or group by clause
 		 */
-		
-		
+		//N/A For This Assignment?
+
 		/*
 		 * call the getResultSet() method of CsvQueryProcessor class by passing the
 		 * QueryParameter Object to it. This method is supposed to return resultSet
 		 * which is a HashMap
 		 */
-		
-		
-	
-		return null;
+		CsvQueryProcessor csvQueryProcessor = new CsvQueryProcessor();
+		return csvQueryProcessor.getResultSet(qParameter);
+
+		//return f;
 	}
 
 }

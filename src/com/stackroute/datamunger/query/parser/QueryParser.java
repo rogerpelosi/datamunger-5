@@ -27,6 +27,7 @@ public class QueryParser {
 		queryParameter.setRestrictions(getRestrictionsLogic(queryString));
 		queryParameter.setLogicalOperators(getLogicalOperatorsLogic(queryString));
 		queryParameter.setAggregateFunctions(getAggregateFunctionsLogic(queryString));
+		queryParameter.setQueryType(getQueryTypeLogic(queryString));
 
 		return queryParameter;
 
@@ -285,16 +286,16 @@ public class QueryParser {
 					}
 
 				}
-
-				System.out.println("From Array split at: " + aggWord);
-				for(String arr: array){
-					System.out.print( arr + " | ");
-				}
-				System.out.println("");
-
 			}
 		}
 		return aggregateFunctionsList;
+	}
+
+	public String getQueryTypeLogic(String qString){
+		if(getAggregateFunctionsLogic(qString).isEmpty() && getGroupByFieldsLogic(qString) == null && getOrderByFieldsLogic(qString) == null){
+			return "Processable";
+		}
+		else {return "NOT Processable";}
 	}
 
 }
