@@ -3,22 +3,44 @@ package com.stackroute.datamunger.reader;
 import com.stackroute.datamunger.query.DataSet;
 import com.stackroute.datamunger.query.parser.QueryParameter;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
+
 public class CsvQueryProcessor implements QueryProcessingEngine {
+
+	FileReader fReader;
+	BufferedReader bReader;
+
 	/*
 	 * This method will take QueryParameter object as a parameter which contains the
 	 * parsed query and will process and populate the ResultSet
 	 */
-	public DataSet getResultSet(QueryParameter queryParameter) {
+	public DataSet getResultSet(QueryParameter queryParameter) throws IOException {
 
 		/*
 		 * initialize BufferedReader to read from the file which is mentioned in
 		 * QueryParameter. Consider Handling Exception related to file reading.
 		 */
+		try{
+			fReader = new FileReader(queryParameter.getFileName());
+			bReader = new BufferedReader(fReader);
+		} catch (FileNotFoundException e) {
+			fReader = new FileReader("data/ipl.csv");
+			bReader = new BufferedReader(fReader);
+		}
 
 		/*
 		 * read the first line which contains the header. Please note that the headers
 		 * can contain spaces in between them. For eg: city, winner
 		 */
+		String[] headerArray = bReader.readLine().split(",");
 
 		/*
 		 * read the next line which contains the first row of data. We are reading this
@@ -26,11 +48,14 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 * that ipl.csv file contains null value in the last column. If you do not
 		 * consider this while splitting, this might cause exceptions later
 		 */
+		String[] dataForFieldsArray = (bReader.readLine().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", 18));
 
 		/*
 		 * populate the header Map object from the header array. header map is having
 		 * data type <String,Integer> to contain the header and it's index.
 		 */
+		//Map<String, Integer> headerMap = (Map<String, Integer>) Arrays.stream(headerArray);
+		System.out.println(Arrays.stream(headerArray).collect(Collectors.toList()));
 
 		/*
 		 * We have read the first line of text already and kept it in an array. Now, we
@@ -96,6 +121,8 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 */
 
 		/* return dataset object */
+		bReader.close();
+		fReader.close();
 		return null;
 	}
 

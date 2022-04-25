@@ -1,5 +1,7 @@
 package com.stackroute.datamunger.query;
 
+import com.stackroute.datamunger.query.parser.QueryParser;
+
 import java.util.HashMap;
 
 public class Query {
@@ -17,12 +19,15 @@ public class Query {
 	public HashMap executeQuery(String queryString) {
 	
 		/* instantiate QueryParser class */
+
+		QueryParser qParser;
 		
 		/*
 		 * call parseQuery() method of the class by passing the queryString which will
 		 * return object of QueryParameter
 		 */
-		
+
+		//qParser.parseQuery(queryString); ARE WE SUPPOSED TO INITIALIZE AS WELL??
 		
 		/*
 		 * Check for Type of Query based on the QueryParameter object. In this
