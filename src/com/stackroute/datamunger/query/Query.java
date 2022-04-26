@@ -20,7 +20,7 @@ public class Query {
 	 * multiple conditions
 	 */
 	@SuppressWarnings("rawtypes")
-	public HashMap executeQuery(String queryString) throws IOException {
+	public HashMap executeQuery(String queryString) {
 
 		HashMap<String, String> f = new HashMap<>();
 	
@@ -47,7 +47,12 @@ public class Query {
 		 * which is a HashMap
 		 */
 		CsvQueryProcessor csvQueryProcessor = new CsvQueryProcessor();
-		return csvQueryProcessor.getResultSet(qParameter);
+		try{
+			return csvQueryProcessor.getResultSet(qParameter);
+		} catch(Exception e){
+			e.printStackTrace();
+			return f;
+		}
 
 		//return f;
 	}

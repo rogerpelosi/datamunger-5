@@ -18,6 +18,7 @@ public class Filter {
 	 */
 
 	public boolean evaluateExpression(String fieldValue, Restriction restriction, String dataType){
+		System.out.println(dataType);
 		switch(restriction.getCondition()){
 			case "=" : return isEqualTo(fieldValue, restriction.getPropertyValue(), dataType);
 			case "!=" : return isNotEqualTo(fieldValue, restriction.getPropertyValue(), dataType);

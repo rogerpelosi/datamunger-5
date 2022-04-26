@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class DataTypeDefinitions {
 
 	//method stub
-	public static Object getDataType(String input) {
+	public static String getDataType(String input) {
 
 		Object obj = new Object();
 
@@ -26,15 +26,15 @@ public class DataTypeDefinitions {
 		Pattern allDigits = Pattern.compile("(\\p{Digit})[\\p{Digit}]*");
 
 		if(input.isEmpty()) {
-			return obj;
+			return "java.lang.Object";
 		} else if(digitCheck.matcher(input).region(0,1).matches()) {
 			if(allDigits.matcher(input).matches()) {
-				return 1234;
+				return "java.lang.Integer";
 			} else {
-				return LocalDate.now();
+				return "java.util.Date";
 			}
 		} else {
-			return "stringalingling";
+			return "java.lang.String";
 		}
 	
 		// checking for Integer

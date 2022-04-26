@@ -1,19 +1,15 @@
 package com.stackroute.datamunger.reader;
 
-import com.stackroute.datamunger.query.DataSet;
-import com.stackroute.datamunger.query.DataTypeDefinitions;
-import com.stackroute.datamunger.query.Header;
-import com.stackroute.datamunger.query.RowDataTypeDefinitions;
+import com.stackroute.datamunger.query.*;
 import com.stackroute.datamunger.query.parser.QueryParameter;
 import com.stackroute.datamunger.query.parser.QueryParser;
+import com.stackroute.datamunger.query.parser.Restriction;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -54,6 +50,7 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 * can contain spaces in between them. For eg: city, winner
 		 */
 		String[] headerArray = bReader.readLine().split(",");
+		bReader.mark(1);
 
 		/*
 		 * read the next line which contains the first row of data. We are reading this
@@ -81,7 +78,7 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		 */
 		RowDataTypeDefinitions rdtdMap = new RowDataTypeDefinitions();
 		for(int i = 0; i < dataForFieldsArray.length; i++){
-			rdtdMap.put(i, DataTypeDefinitions.getDataType(dataForFieldsArray[i]).getClass().getSimpleName());
+			rdtdMap.put(i, DataTypeDefinitions.getDataType(dataForFieldsArray[i]));
 		}
 
 		/*
@@ -95,14 +92,55 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 
 		/* reset the buffered reader so that it can start reading from the first line */
 		bReader.reset();
+		Filter filter = new Filter();
+		String oneLineOfWords;
+		long setRow = 1;
 
 		/*
 		 * skip the first line as it is already read earlier which contained the header
 		 */
-		System.out.println(bReader.readLine());
+
 
 		/* read one line at a time from the CSV file till we have any lines left */
-		//while(!bReader.readLine().isEmpty())
+		while((oneLineOfWords = bReader.readLine()) != null){
+
+			boolean shouldContinue;
+			List<Restriction> queryRestrictions = queryParameter.getRestrictions();
+			String [] currentLineData = oneLineOfWords.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", 18);
+			List<Boolean> booleans = new ArrayList<>();
+
+			//check if the current query has restrictions
+			if(queryRestrictions == null){
+				shouldContinue = true;
+			} else {
+				for(Restriction eachRestriction : queryRestrictions){
+					int index = headerMap.get(eachRestriction.getPropertyName());
+					booleans.add(filter.evaluateExpression(currentLineData[index].trim(), eachRestriction, rdtdMap.get(index)));
+				}
+				shouldContinue = solveOperators(booleans, queryParameter.getLogicalOperators());
+			}
+
+			if(shouldContinue){
+
+				Row rowMap = new Row();
+				List<String> queryFields = queryParameter.getFields();
+
+				for(String eachField : queryFields){
+					if(eachField.equals("*")){
+						for(int l = 0; l < headerArray.length; l++){
+							rowMap.put(headerArray[l].trim(), currentLineData[l]);
+						}
+					} else {
+						rowMap.put(eachField, currentLineData[headerMap.get(eachField)]);
+					}
+				}
+
+				dataSet.put(setRow++, rowMap);
+
+			}
+
+
+		}
 
 		/*
 		 * once we have read one line, we will split it into a String Array. This array
@@ -146,6 +184,28 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 		bReader.close();
 		fReader.close();
 		return dataSet;
+	}
+
+	private boolean solveOperators(List<Boolean> booleans, List<String> operators) {
+		switch (booleans.size()) {
+			default: return false;
+			case (1): return booleans.get(0);
+			case (2):
+				if (operators.get(0).matches("and")) return booleans.get(0) & booleans.get(1);
+				else return booleans.get(0) | booleans.get(1);
+			case (3):
+				int i = operators.indexOf("and");
+				switch (i) {
+					default:
+						return false;
+					case (-1):
+						return booleans.get(0) | booleans.get(1) | booleans.get(2);
+					case (0):
+						return booleans.get(0) & booleans.get(1) | booleans.get(2);
+					case (1):
+						return booleans.get(0) | booleans.get(1) & booleans.get(2);
+				}
+		}
 	}
 
 }
