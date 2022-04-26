@@ -103,7 +103,7 @@ public class QueryParser {
 			return groupFields;
 		}
 
-		return null;
+		return groupFields;
 
 	}
 
@@ -128,7 +128,7 @@ public class QueryParser {
 			return orderFields;
 		}
 
-		return null;
+		return orderFields;
 	}
 
 	/*
@@ -215,7 +215,7 @@ public class QueryParser {
 			if (andOrSplitArr.length == 1) {
 				String singleRestrict = andOrSplitArr[0];
 				for (String symbol : symbols) {
-					if (singleRestrict.contains(symbol)) {
+					if (singleRestrict.equals(symbol)) {
 						String[] conditionSplit = singleRestrict.trim().split(symbol);
 						restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim(), symbol));
 					}
@@ -223,7 +223,7 @@ public class QueryParser {
 			} else if (andOrSplitArr.length > 1) {
 				for (String oneConditionOfMultiple : andOrSplitArr) {
 					for (String symbol : symbols) {
-						if (oneConditionOfMultiple.contains(symbol)) {
+						if (oneConditionOfMultiple.equals(symbol)) {
 							String[] conditionSplit = oneConditionOfMultiple.trim().split(symbol);
 							String selectedValue = conditionSplit[1];
 							if (!selectedValue.contains("'")) {
