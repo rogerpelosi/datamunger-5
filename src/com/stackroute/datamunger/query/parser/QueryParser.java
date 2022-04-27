@@ -2,6 +2,7 @@ package com.stackroute.datamunger.query.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class QueryParser {
 
@@ -201,48 +202,36 @@ public class QueryParser {
 	 *
 	 */
 	public List<Restriction> getRestrictionsLogic(String qString) {
+
 		List<Restriction> restrictionsList = new ArrayList<>();
-		String[] symbols = {"=", "<", ">", "!=", "<=", ">="};
 
-		//"select winner,season,team1,team2 from ipl.csv where season = 2014 and city ='bangalore'"
-		//String[] whereSplitArr = qString.split("where ");
-		//{select winner,season,team1,team2 from ipl.csv | season = 2014 and city ='bangalore'}
-		//String[] andOrSplitArr = whereSplitArr[1].split(" and | or ");
-		//{season = 2014 | city ='bangalore'}
 		if(qString.contains(" where ")){
-			String[] whereSplitArr = qString.split("where ");
-			String[] andOrSplitArr = whereSplitArr[1].split(" and | or ");
-			if (andOrSplitArr.length == 1) {
-				String singleRestrict = andOrSplitArr[0];
-				for (String symbol : symbols) {
-					if (singleRestrict.equals(symbol)) {
-						String[] conditionSplit = singleRestrict.trim().split(symbol);
-						restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim(), symbol));
-					}
-				}
-			} else if (andOrSplitArr.length > 1) {
-				for (String oneConditionOfMultiple : andOrSplitArr) {
-					for (String symbol : symbols) {
-						if (oneConditionOfMultiple.equals(symbol)) {
-							String[] conditionSplit = oneConditionOfMultiple.trim().split(symbol);
-							String selectedValue = conditionSplit[1];
-							if (!selectedValue.contains("'")) {
-								restrictionsList.add(new Restriction(conditionSplit[0].trim(), conditionSplit[1].trim(), symbol));
-							} else if (selectedValue.contains("'")) {
-								String[] quoteSplit = selectedValue.split("'");
 
-								restrictionsList.add(new Restriction(conditionSplit[0].trim(), quoteSplit[1], symbol));
-							}
-						}
-					}
-				}
+			String[] whereSplitArray = qString.split("where ");
+			String[] onlyConditionsArray = whereSplitArray[1].trim().split(" order by | group by ")[0].trim().split(" and | or ");
+
+			for(String eachCondition : onlyConditionsArray){
+				String thisConditionInstance;
+				System.out.println(eachCondition);
+				if(eachCondition.contains("!=")){thisConditionInstance = "!=";}
+				else if(eachCondition.contains("<=")){thisConditionInstance = "<=";}
+				else if(eachCondition.contains(">=")){thisConditionInstance = ">=";}
+				else if(eachCondition.contains("=")){thisConditionInstance = "=";}
+				else if(eachCondition.contains("<")){thisConditionInstance = "<";}
+				else if(eachCondition.contains(">")){thisConditionInstance = ">";}
+				else {thisConditionInstance = "";}
+				System.out.println("This Restriction's Condition is: " + thisConditionInstance);
+				String field = eachCondition.split(thisConditionInstance)[0].trim();
+				String value = eachCondition.split(thisConditionInstance)[1].replaceAll("'", "").trim();
+				restrictionsList.add(new Restriction(field, value, thisConditionInstance));
 			}
+
 			return restrictionsList;
+
 		}
-		//can have multiple restrictions
-		//create a list of each restriction object
-		//return a list of restrictions
+
 		return null;
+
 	}
 
 	/*
