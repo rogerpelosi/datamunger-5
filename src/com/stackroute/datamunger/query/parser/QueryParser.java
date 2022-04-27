@@ -212,7 +212,6 @@ public class QueryParser {
 
 			for(String eachCondition : onlyConditionsArray){
 				String thisConditionInstance;
-				System.out.println(eachCondition);
 				if(eachCondition.contains("!=")){thisConditionInstance = "!=";}
 				else if(eachCondition.contains("<=")){thisConditionInstance = "<=";}
 				else if(eachCondition.contains(">=")){thisConditionInstance = ">=";}
@@ -220,7 +219,6 @@ public class QueryParser {
 				else if(eachCondition.contains("<")){thisConditionInstance = "<";}
 				else if(eachCondition.contains(">")){thisConditionInstance = ">";}
 				else {thisConditionInstance = "";}
-				System.out.println("This Restriction's Condition is: " + thisConditionInstance);
 				String field = eachCondition.split(thisConditionInstance)[0].trim();
 				String value = eachCondition.split(thisConditionInstance)[1].replaceAll("'", "").trim();
 				restrictionsList.add(new Restriction(field, value, thisConditionInstance));

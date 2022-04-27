@@ -111,12 +111,18 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 
 			//check if the current query has restrictions
 			if(queryRestrictions == null){
-				shouldContinue = true;
+				shouldContinue = true; //if no restrictions, move onto the field selection and corresponding value essentially
 			} else {
+				//if restrictions exist, cycle through each individual one
 				for(Restriction eachRestriction : queryRestrictions){
+					//set the index to the index of where said restriction's property name lies within the header map
 					int index = headerMap.get(eachRestriction.getPropertyName());
+					//add to booleans list the evaluation (t/f) of our current lines value (corresponding to field index of restriction property), the restriction itself, and the data type of the corresponding index in the rdtdmap where that field's datatype is defined
+					//basically checking, line by line, restriction by restriction, if the corresponding value of this line does in fact "pass" the restriction statement or not and adding to list
 					booleans.add(filter.evaluateExpression(currentLineData[index].trim(), eachRestriction, rdtdMap.get(index)));
 				}
+				//setting the boolean which tells us whether we should continue or not to the result of solveOperators being passed our booleans list
+				//and the query parameter's logical operators themselves
 				shouldContinue = solveOperators(booleans, queryParameter.getLogicalOperators());
 			}
 
@@ -131,10 +137,12 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 							rowMap.put(headerArray[l].trim(), currentLineData[l]);
 						}
 					} else {
+						//in one row, we are putting each specified field corresponding to the value of our current line which shares the same index as said field itself
 						rowMap.put(eachField, currentLineData[headerMap.get(eachField)]);
 					}
 				}
 
+				//then we are taking this row which is a hashmap, and adding to to our dataset with a corresponding long which increments per row added
 				dataSet.put(setRow++, rowMap);
 
 			}
@@ -189,6 +197,8 @@ public class CsvQueryProcessor implements QueryProcessingEngine {
 	private boolean solveOperators(List<Boolean> booleans, List<String> operators) {
 		switch (booleans.size()) {
 			default: return false;
+			//if there is only one boolean in list, return its value to the initial shouldContinue boolean which
+			//essentially decides whether to write field--value to the json/gson in the end
 			case (1): return booleans.get(0);
 			case (2):
 				if (operators.get(0).matches("and")) return booleans.get(0) & booleans.get(1);
